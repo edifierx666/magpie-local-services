@@ -796,7 +796,11 @@ function updateCard(c, svc) {
   if (svc.githubRepository) {
     if (svc.currentVersion) meta.push(h("span", { text: t("current", svc.currentVersion) }))
     if (svc.ignoredVersion && !u.available) meta.push(h("span", { text: t("ignored", svc.ignoredVersion) }))
-    if (svc.updateStatus?.errorMessage) meta.push(h("span", { class: "err", text: svc.updateStatus.errorMessage }))
+    // 这是上次「检查更新」的失败原因，与服务能否启动无关；标明来源和时间，避免被当成启动错误
+    if (svc.updateStatus?.errorMessage) {
+      const at = svc.updateStatus.lastCheckedAt
+      meta.push(h("span", { class: "err", title: at ? t("lastChecked", ago(at)) : null, text: t("updateCheckFailed", svc.updateStatus.errorMessage) }))
+    }
     // 忽略了更新版本时不能说「已是最新」
     else if (svc.updateStatus?.lastCheckedAt && !u.available && !u.checking && !svc.ignoredVersion) meta.push(h("span", { title: t("lastChecked", ago(svc.updateStatus.lastCheckedAt)), text: t("upToDate") }))
   }
