@@ -79,7 +79,7 @@ describe("GitHub 访问令牌", async () => {
     expect(isPlausibleToken("ghp_abc def 1234567890123456")).toBe(false)
   })
   test("保存为 0600 文件，可清除", () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "edx-token-test-"))
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ls-token-test-"))
     try {
       const store = new Store(dir)
       store.save()
@@ -107,10 +107,10 @@ describe("更新检查设置：旧默认值迁移", async () => {
   const path = await import("node:path")
   const { Store } = await import("../lib/store.mjs")
   const withSaved = (settings, fn) => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "edx-settings-mig-"))
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ls-settings-mig-"))
     try {
-      fs.mkdirSync(path.join(dir, "edx-services"), { recursive: true })
-      fs.writeFileSync(path.join(dir, "edx-services/services.json"), JSON.stringify({ version: 1, services: [], settings }))
+      fs.mkdirSync(path.join(dir, "local-services"), { recursive: true })
+      fs.writeFileSync(path.join(dir, "local-services/services.json"), JSON.stringify({ version: 1, services: [], settings }))
       fn(new Store(dir))
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
@@ -141,7 +141,7 @@ describe("更新检查设置", async () => {
   const path = await import("node:path")
   const { Store } = await import("../lib/store.mjs")
   test("默认自动检查，每 12 小时", () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "edx-settings-test-"))
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ls-settings-test-"))
     try {
       expect(new Store(dir).settings).toEqual({ autoCheck: true, intervalHours: 12, intervalHoursCustom: false })
     } finally {
@@ -158,7 +158,7 @@ describe("保存令牌（GitHub 接口替身）", async () => {
   const { setConfiguredToken } = await import("../lib/github.mjs")
 
   test("验证通过才保存，换令牌后解除限流冷却；无效令牌不落盘", async () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "edx-token-mgr-"))
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ls-token-mgr-"))
     const realFetch = globalThis.fetch
     const seen = []
     globalThis.fetch = async (url, init) => {
@@ -196,7 +196,7 @@ describe("删除后撤销", async () => {
   const { Store } = await import("../lib/store.mjs")
 
   test("按原位置、原配置恢复，日志一并恢复；重复恢复报错；重启后清理残留日志", async () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "edx-undo-"))
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ls-undo-"))
     try {
       const m = new ServiceManager(dir)
       const a = m.create({ name: "a", command: "true" })

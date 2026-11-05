@@ -1,4 +1,4 @@
-// magpie 插件入口：Edx「自定义服务」的 magpie 版。
+// magpie 插件入口：本地服务（Local Services），托管需要长期运行的本地命令。
 // - 在 magpie 应用的插件宿主里管理长期运行的本地命令（启动/停止/日志/更新检查）；
 // - 侧边栏页面跳转到本插件在 127.0.0.1 提供的面板；
 // 注意：本模块只能导出这一个函数，magpie 会把导出的每个函数都当作插件函数调用。
@@ -13,7 +13,7 @@ const APP_SUBCOMMANDS = new Set(["tray", "serve", "web", "daemon", "tui"])
 let shared = null
 
 function isAppHost() {
-  const forced = process.env.EDX_SERVICES_LEADER
+  const forced = process.env.LOCAL_SERVICES_LEADER
   if (forced === "1") return true
   if (forced === "0") return false
   try {
@@ -26,7 +26,7 @@ function isAppHost() {
 }
 
 function resolvePort(options) {
-  const fromEnv = Number(process.env.EDX_SERVICES_PORT)
+  const fromEnv = Number(process.env.LOCAL_SERVICES_PORT)
   const fromOptions = Number(options?.port)
   for (const p of [fromEnv, fromOptions]) if (Number.isInteger(p) && p > 1023 && p < 65536) return p
   return DEFAULT_PORT
@@ -41,21 +41,21 @@ function becomeLeader(state) {
   const attempt = () => {
     try {
       state.server = startServer({ manager: state.manager, port: state.port, directory: state.directory, options: state.options })
-      console.error(`edx-services: 面板已在 http://127.0.0.1:${state.port}/ 提供`)
-      state.manager.boot().catch((e) => console.error(`edx-services: 接管服务失败：${e?.stack ?? e}`))
+      console.error(`local-services: 面板已在 http://127.0.0.1:${state.port}/ 提供`)
+      state.manager.boot().catch((e) => console.error(`local-services: 接管服务失败：${e?.stack ?? e}`))
       state.leader = true
     } catch (e) {
       attempts++
       const inUse = e?.code === "EADDRINUSE" || /in use|EADDRINUSE/i.test(String(e?.message))
-      if (!inUse) console.error(`edx-services: 启动面板失败：${e?.message ?? e}`)
-      else if (attempts === 1) console.error(`edx-services: 端口 ${state.port} 被占用，稍后重试`)
+      if (!inUse) console.error(`local-services: 启动面板失败：${e?.message ?? e}`)
+      else if (attempts === 1) console.error(`local-services: 端口 ${state.port} 被占用，稍后重试`)
       setTimeout(attempt, attempts < 60 ? 2000 : 30_000).unref?.()
     }
   }
   attempt()
 }
 
-export const EdxServicesPlugin = async (input, options) => {
+export const LocalServicesPlugin = async (input, options) => {
   if (!shared) {
     const directory = input?.directory
     if (!directory) throw new Error("magpie 没有提供配置目录")

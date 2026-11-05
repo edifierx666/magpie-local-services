@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/edifierx666/magpie-edx-services/main/page/icon.svg" width="72" alt="Edx 自定义服务">
+<img src="https://raw.githubusercontent.com/edifierx666/magpie-local-services/main/page/icon.svg" width="72" alt="本地服务">
 
-# Edx 自定义服务
+# 本地服务 · Local Services
 
 **常驻本地命令，在 magpie 里一处托管**
 
@@ -16,13 +16,13 @@
 
 </div>
 
-<p align="center"><img src="https://raw.githubusercontent.com/edifierx666/magpie-edx-services/main/docs/screenshots/01-services-list.png" alt="服务列表" width="820"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/edifierx666/magpie-local-services/main/docs/screenshots/01-services-list.png" alt="服务列表" width="820"></p>
 
-本地代理、网关、开发服务器这类要一直开着的命令，不用再各开一个终端窗口守着。这个 magpie 插件在侧边栏加一个「自定义服务」页面：统一启停、看实时日志、发现新版本并一键更新，还能把端口临时分享到公网。
+本地代理、网关、开发服务器这类要一直开着的命令，不用再各开一个终端窗口守着。这个 magpie 插件在侧边栏加一个「本地服务」页面：统一启停、看实时日志、发现新版本并一键更新，还能把端口临时分享到公网。
 
 ## 特性
 
-- **🛡️ 进程管得住** — 每个服务带 `EDX_SERVICE_ID` 环境标记并单独成进程组，连同派生的子孙进程一起追踪；停止时先执行你写的终止命令，再 SIGTERM → SIGKILL 收尾。
+- **🛡️ 进程管得住** — 每个服务带 `LOCAL_SERVICE_ID` 环境标记并单独成进程组，连同派生的子孙进程一起追踪；停止时先执行你写的终止命令，再 SIGTERM → SIGKILL 收尾。
 - **🔁 magpie 重启不掉线** — 服务独立于 magpie 运行，magpie 重启或插件更新后自动重新接管，日志不断档。
 - **🚦 按队列有序启动** — 「随 magpie 启动」的服务按启动队列（1–99）分批拉起，前一批全部就绪并稳定 1.5 秒才启动下一批。
 - **🔔 新版本自己找上门** — 绑定 GitHub 仓库后每 12 小时查一次最新 Release；版本命令自动探测，有新版时一键执行更新命令，也可以忽略这个版本。
@@ -34,14 +34,14 @@
 前置：macOS + [magpie](https://usemagpie.ai)（插件由 magpie 自带的 Bun 运行，无需安装依赖）；使用隧道另需 `cloudflared`。
 
 ```bash
-magpie plugin add github:edifierx666/magpie-edx-services
+magpie plugin add github:edifierx666/magpie-local-services
 ```
 
 ```bash
 brew install cloudflared
 ```
 
-启用插件后，magpie 侧边栏的「插件」分组里出现「自定义服务」，点开即可使用。
+启用插件后，magpie 侧边栏的「插件」分组里出现「本地服务」，点开即可使用。
 
 ## 使用示例
 
@@ -55,11 +55,11 @@ brew install cloudflared
 | 环境变量 | `NODE_ENV=production`、`PORT=3000` |
 | 随 magpie 启动 / 启动队列 | 打开 / `2` |
 
-<img src="https://raw.githubusercontent.com/edifierx666/magpie-edx-services/main/docs/screenshots/02-service-editor.png" alt="新建服务" width="560">
+<img src="https://raw.githubusercontent.com/edifierx666/magpie-local-services/main/docs/screenshots/02-service-editor.png" alt="新建服务" width="560">
 
 保存后点「启动」：状态变为「运行中」，行内出现端口 `3000` 与 PID 标签，「日志」里能看到实时输出。
 
-<img src="https://raw.githubusercontent.com/edifierx666/magpie-edx-services/main/docs/screenshots/03-logs.png" alt="日志" width="720">
+<img src="https://raw.githubusercontent.com/edifierx666/magpie-local-services/main/docs/screenshots/03-logs.png" alt="日志" width="720">
 
 **跟踪版本并一键更新**：在同一个服务的「更新」部分补上：
 
@@ -71,27 +71,27 @@ brew install cloudflared
 
 有新版本时行内显示「v… 可用」，可以「立即更新」「查看发布页」「忽略此版本」或「标记为当前版本」。匿名查询每小时 60 次，在设置里填「GitHub 访问令牌」可以提高额度。
 
-<img src="https://raw.githubusercontent.com/edifierx666/magpie-edx-services/main/docs/screenshots/04-update-available.png" alt="发现新版本" width="720">
+<img src="https://raw.githubusercontent.com/edifierx666/magpie-local-services/main/docs/screenshots/04-update-available.png" alt="发现新版本" width="720">
 
 **分享到公网**：在服务的 ⋯ 菜单选「分享到公网…」，或切到「隧道」标签页填任意端口，点「开始分享」。地址出来后可以复制、在浏览器中打开或关闭隧道。
 
 | 分享到公网 | 隧道列表 |
 | --- | --- |
-| <img src="https://raw.githubusercontent.com/edifierx666/magpie-edx-services/main/docs/screenshots/07-tunnel-share.png" alt="分享到公网" width="380"> | <img src="https://raw.githubusercontent.com/edifierx666/magpie-edx-services/main/docs/screenshots/08-tunnels-list.png" alt="隧道列表" width="420"> |
+| <img src="https://raw.githubusercontent.com/edifierx666/magpie-local-services/main/docs/screenshots/07-tunnel-share.png" alt="分享到公网" width="380"> | <img src="https://raw.githubusercontent.com/edifierx666/magpie-local-services/main/docs/screenshots/08-tunnels-list.png" alt="隧道列表" width="420"> |
 
 ## 配置项
 
 <details>
 <summary><b>插件选项与环境变量</b></summary>
 
-插件选项用 `magpie plugin options magpie-edx-services '<json>'` 设置。
+插件选项用 `magpie plugin options magpie-local-services '<json>'` 设置。
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
 | 选项 `port` | number | `3427` | 插件本地面板与 API 的端口（1024–65535） |
 | 选项 `token` | string | 首次打开自动生成 | 面板访问令牌（≥32 位） |
-| `EDX_SERVICES_PORT` | number | — | 覆盖面板端口，优先于选项 `port` |
-| `EDX_SERVICES_LEADER` | `1` / `0` | 自动判断 | 强制当前插件宿主接管 / 不接管服务（调试用） |
+| `LOCAL_SERVICES_PORT` | number | — | 覆盖面板端口，优先于选项 `port` |
+| `LOCAL_SERVICES_LEADER` | `1` / `0` | 自动判断 | 强制当前插件宿主接管 / 不接管服务（调试用） |
 | `GITHUB_TOKEN` / `GH_TOKEN` | string | — | 面板未保存令牌时用于查询 Release；都没有再试 `gh auth token` |
 
 </details>
@@ -116,7 +116,7 @@ brew install cloudflared
 | 命令 | string | — | 必填，在登录 shell（`-i -l -c`）中执行 |
 | 工作目录 | string | 用户主目录 | 运行目录 |
 | 环境变量 | 每行 `KEY=value` | — | 额外环境变量 |
-| 终止命令 | string | — | 停止时先执行（最多等 30 秒），可用 `$EDX_SERVICE_PID`、`$EDX_SERVICE_PIDS`、`$EDX_SERVICE_PORTS` |
+| 终止命令 | string | — | 停止时先执行（最多等 30 秒），可用 `$LOCAL_SERVICE_PID`、`$LOCAL_SERVICE_PIDS`、`$LOCAL_SERVICE_PORTS` |
 | 随 magpie 启动 | boolean | 关 | 每个 magpie 会话只自动启动一次 |
 | 启动队列 | number | `1` | 1–99，自动启动时从小到大分批 |
 | GitHub 仓库 | `owner/repo` | — | 绑定后才检查新版本 |
@@ -129,8 +129,8 @@ brew install cloudflared
 <details>
 <summary><b>数据、令牌与安全</b></summary>
 
-- **数据目录**：`<magpie 配置目录>/edx-services/`，含 `services.json`、`runtime.json`、`logs/`、`tunnels/`。
-- **面板令牌**：首次打开时生成，保存在 magpie `plugins.json` 中本插件的选项里；每个 API 请求都要带 `x-edx-token`。
+- **数据目录**：`<magpie 配置目录>/local-services/`，含 `services.json`、`runtime.json`、`logs/`、`tunnels/`。
+- **面板令牌**：首次打开时生成，保存在 magpie `plugins.json` 中本插件的选项里；每个 API 请求都要带 `x-local-services-token`。
 - **GitHub 令牌**：单独存成权限 `0600` 的文件，不写进 `services.json`，也不进日志；面板只显示末 4 位。
 - **网络边界**：面板只监听 `127.0.0.1` 并校验 `Host` 头，其他网页无法跨站操作服务；「打开链接」只放行 GitHub 与本插件建立的隧道地址。
 - **隧道即公网入口**：拿到地址的人都能访问对应端口，不用时请关闭。
@@ -169,7 +169,7 @@ bun test
 
 ```bash
 sb=$(mktemp -d); mkdir -p $sb/.config/magpie; echo '{"plugins":[]}' > $sb/.config/magpie/plugins.json
-m() { env HOME=$sb XDG_CONFIG_HOME=$sb/.config XDG_CACHE_HOME=$sb/.cache MAGPIE_ADDR=127.0.0.1:3499 EDX_SERVICES_PORT=3528 magpie "$@"; }
+m() { env HOME=$sb XDG_CONFIG_HOME=$sb/.config XDG_CACHE_HOME=$sb/.cache MAGPIE_ADDR=127.0.0.1:3499 LOCAL_SERVICES_PORT=3528 magpie "$@"; }
 m plugin add ./ </dev/null && m web --addr 127.0.0.1:3531
 ```
 

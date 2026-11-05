@@ -1,7 +1,7 @@
 // 面板文案：中文与英文。语言来自 magpie 窗口（插件页面跳转时带上 lang）。
-window.EDX_I18N = {
+window.LOCAL_SERVICES_I18N = {
   zh: {
-    title: "自定义服务",
+    title: "本地服务",
     new: "新建",
     checkAll: "检查全部更新",
     settings: "设置",
@@ -121,7 +121,7 @@ window.EDX_I18N = {
     "ph.command": "node server.js --port 3000",
     "ph.cwd": "~/projects/my-node-app",
     "ph.env": "NODE_ENV=production\nPORT=3000",
-    "ph.stopCommand": "可用 $EDX_SERVICE_PID、$EDX_SERVICE_PIDS、$EDX_SERVICE_PORTS",
+    "ph.stopCommand": "可用 $LOCAL_SERVICE_PID、$LOCAL_SERVICE_PIDS、$LOCAL_SERVICE_PORTS",
     "ph.repo": "nodejs/node",
     "ph.version": "v22.11.0",
     "ph.versionCommand": "node --version",
@@ -137,7 +137,7 @@ window.EDX_I18N = {
     clearLogs: "清空",
     noLogs: "暂无输出",
     close: "关闭",
-    unauthorized: "请从 magpie 侧边栏的「自定义服务」打开此页面。",
+    unauthorized: "请从 magpie 侧边栏的「本地服务」打开此页面。",
     offline: "无法连接插件服务，正在重试…",
     "unit.s": "{0} 秒",
     "unit.m": "{0} 分钟",
@@ -147,7 +147,7 @@ window.EDX_I18N = {
     justNow: "刚刚",
   },
   en: {
-    title: "Custom Services",
+    title: "Local Services",
     new: "New",
     checkAll: "Check all for updates",
     settings: "Settings",
@@ -267,7 +267,7 @@ window.EDX_I18N = {
     "ph.command": "node server.js --port 3000",
     "ph.cwd": "~/projects/my-node-app",
     "ph.env": "NODE_ENV=production\nPORT=3000",
-    "ph.stopCommand": "$EDX_SERVICE_PID, $EDX_SERVICE_PIDS and $EDX_SERVICE_PORTS are set",
+    "ph.stopCommand": "$LOCAL_SERVICE_PID, $LOCAL_SERVICE_PIDS and $LOCAL_SERVICE_PORTS are set",
     "ph.repo": "nodejs/node",
     "ph.version": "v22.11.0",
     "ph.versionCommand": "node --version",
@@ -283,7 +283,7 @@ window.EDX_I18N = {
     clearLogs: "Clear",
     noLogs: "No output yet",
     close: "Close",
-    unauthorized: "Open this page from “Custom Services” in magpie’s sidebar.",
+    unauthorized: "Open this page from “Local Services” in magpie’s sidebar.",
     offline: "Can’t reach the plugin, retrying…",
     "unit.s": "{0}s",
     "unit.m": "{0}m",

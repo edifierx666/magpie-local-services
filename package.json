@@ -1,14 +1,14 @@
 {
-  "name": "magpie-edx-services",
+  "name": "magpie-local-services",
   "version": "0.1.0",
-  "description": "Edx custom services for magpie: run, supervise and update long-running local commands",
-  "homepage": "https://github.com/edifierx666/magpie-edx-services#readme",
+  "description": "Local services for magpie: run, supervise and update long-running local commands, and share local ports via Cloudflare quick tunnels",
+  "homepage": "https://github.com/edifierx666/magpie-local-services#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/edifierx666/magpie-edx-services.git"
+    "url": "git+https://github.com/edifierx666/magpie-local-services.git"
   },
   "bugs": {
-    "url": "https://github.com/edifierx666/magpie-edx-services/issues"
+    "url": "https://github.com/edifierx666/magpie-local-services/issues"
   },
   "type": "module",
   "main": "./index.mjs",
@@ -33,17 +33,17 @@
     "test": "bun test"
   },
   "magpie": {
-    "name": "Edx 自定义服务",
-    "icon": "https://raw.githubusercontent.com/edifierx666/magpie-edx-services/main/page/icon.svg",
+    "name": "本地服务",
+    "icon": "https://raw.githubusercontent.com/edifierx666/magpie-local-services/main/page/icon.svg",
     "summary": {
       "en": "Run, supervise and update long-running local commands.",
       "zh": "运行、守护和更新长期运行的本地命令。"
     },
     "page": {
-      "title": "Custom Services",
+      "title": "Local Services",
       "titles": {
-        "zh": "自定义服务",
-        "zh-TW": "自訂服務"
+        "zh": "本地服务",
+        "zh-TW": "本機服務"
       },
       "file": "page/index.html",
       "icon": "page/icon.svg",

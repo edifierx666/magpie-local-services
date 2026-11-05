@@ -5,10 +5,10 @@
 const params = new URLSearchParams(location.hash.slice(1))
 const TOKEN = params.get("token") || ""
 const LANG = (params.get("lang") || navigator.language || "zh").toLowerCase().startsWith("zh") ? "zh" : "en"
-const DICT = window.EDX_I18N[LANG]
+const DICT = window.LOCAL_SERVICES_I18N[LANG]
 
 function t(key, ...args) {
-  let s = DICT[key] ?? window.EDX_I18N.zh[key] ?? key
+  let s = DICT[key] ?? window.LOCAL_SERVICES_I18N.zh[key] ?? key
   args.forEach((a, i) => (s = s.replaceAll(`{${i}}`, String(a))))
   return s
 }
@@ -181,7 +181,7 @@ async function api(method, path, body) {
   try {
     res = await fetch(path, {
       method,
-      headers: { "x-edx-token": TOKEN, ...(body !== undefined ? { "content-type": "application/json" } : {}) },
+      headers: { "x-local-services-token": TOKEN, ...(body !== undefined ? { "content-type": "application/json" } : {}) },
       body: body !== undefined ? JSON.stringify(body) : undefined,
     })
   } catch {
@@ -1489,7 +1489,7 @@ function settingsMenu() {
   ]
 }
 
-const TOKEN_CREATE_URL = "https://github.com/settings/tokens/new?description=Edx%20Custom%20Services"
+const TOKEN_CREATE_URL = "https://github.com/settings/tokens/new?description=magpie%20Local%20Services"
 
 /** GitHub 访问令牌：只用于查询 Release，提高请求配额。令牌由宿主验证后保存，面板只看到末 4 位。 */
 async function openTokenDialog() {
