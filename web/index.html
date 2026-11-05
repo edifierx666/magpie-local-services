@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Custom Services</title>
+  <link rel="icon" href="icon.svg">
+  <link rel="stylesheet" href="style.css">
+  <script src="i18n.js"></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="bar">
+    <div class="heading">
+      <h1 id="title"></h1>
+      <div class="seg" role="tablist" id="tabs">
+        <button type="button" role="tab" data-tab="services" aria-selected="true"><span id="tab-services"></span><em id="count-services"></em></button>
+        <button type="button" role="tab" data-tab="tunnels" aria-selected="false"><span id="tab-tunnels"></span><em id="count-tunnels"></em></button>
+      </div>
+    </div>
+    <div class="tools">
+      <span id="rate" class="muted small" hidden></span>
+      <button id="btn-check" class="icon ghost" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v5h-5"/></svg>
+      </button>
+      <button id="btn-settings" class="icon ghost" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      </button>
+      <button id="btn-new" class="primary" type="button"></button>
+    </div>
+  </header>
+  <main>
+    <p id="notice" class="notice" role="alert" hidden></p>
+    <section id="view-services">
+    <ul id="list" class="list"></ul>
+    <section id="empty" class="empty" hidden>
+      <h2 id="empty-title"></h2>
+      <p id="empty-hint" class="muted"></p>
+      <div class="row gap">
+        <button id="empty-new" class="primary" type="button"></button>
+      </div>
+    </section>
+    </section>
+    <section id="view-tunnels" hidden>
+      <ul id="tunnel-list" class="list" hidden></ul>
+      <section id="tunnel-empty" class="empty" hidden></section>
+    </section>
+  </main>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

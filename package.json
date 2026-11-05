@@ -1,0 +1,57 @@
+{
+  "name": "magpie-edx-services",
+  "version": "0.1.0",
+  "description": "Edx custom services for magpie: run, supervise and update long-running local commands",
+  "homepage": "https://github.com/edifierx666/magpie-edx-services#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/edifierx666/magpie-edx-services.git"
+  },
+  "bugs": {
+    "url": "https://github.com/edifierx666/magpie-edx-services/issues"
+  },
+  "type": "module",
+  "main": "./index.mjs",
+  "files": [
+    "index.mjs",
+    "lib",
+    "page",
+    "web",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "magpie",
+    "magpie-plugin",
+    "opencode",
+    "opencode-plugin",
+    "services",
+    "cloudflare-tunnel"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "test": "bun test"
+  },
+  "magpie": {
+    "name": "Edx 自定义服务",
+    "icon": "https://raw.githubusercontent.com/edifierx666/magpie-edx-services/main/page/icon.svg",
+    "summary": {
+      "en": "Run, supervise and update long-running local commands.",
+      "zh": "运行、守护和更新长期运行的本地命令。"
+    },
+    "page": {
+      "title": "Custom Services",
+      "titles": {
+        "zh": "自定义服务",
+        "zh-TW": "自訂服務"
+      },
+      "file": "page/index.html",
+      "icon": "page/icon.svg",
+      "service": {
+        "port": 3427,
+        "option": "port"
+      }
+    },
+    "permissions": []
+  }
+}
