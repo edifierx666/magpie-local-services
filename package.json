@@ -37,7 +37,7 @@
   },
   "magpie": {
     "name": "本地服务",
-    "icon": "https://raw.githubusercontent.com/edifierx666/magpie-local-services/main/page/icon.svg",
+    "icon": "https://raw.githubusercontent.com/edifierx666/magpie-local-services/main/assets/icon.png",
     "summary": {
       "en": "Run, supervise and update long-running local commands.",
       "zh": "运行、守护和更新长期运行的本地命令。"

@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/edifierx666/magpie-local-services/main/page/icon.svg" width="72" alt="本地服务">
+<img src="https://raw.githubusercontent.com/edifierx666/magpie-local-services/main/assets/icon.png" width="96" alt="本地服务">
 
 # 本地服务 · Local Services
 
