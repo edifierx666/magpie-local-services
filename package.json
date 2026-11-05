@@ -32,6 +32,9 @@
   "scripts": {
     "test": "bun test"
   },
+  "engines": {
+    "magpie": ">=0.1.1340"
+  },
   "magpie": {
     "name": "本地服务",
     "icon": "https://raw.githubusercontent.com/edifierx666/magpie-local-services/main/page/icon.svg",
@@ -52,6 +55,9 @@
         "option": "port"
       }
     },
-    "permissions": []
+    "permissions": [],
+    "options": {
+      "port": 3427
+    }
   }
 }

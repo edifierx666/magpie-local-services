@@ -1,8 +1,9 @@
 // magpie 插件入口：本地服务（Local Services），托管需要长期运行的本地命令。
 // - 在 magpie 应用的插件宿主里管理长期运行的本地命令（启动/停止/日志/更新检查）；
 // - 侧边栏页面跳转到本插件在 127.0.0.1 提供的面板；
-// 注意：本模块只能导出这一个函数，magpie 会把导出的每个函数都当作插件函数调用。
 import { execFileSync } from "node:child_process"
+import os from "node:os"
+import path from "node:path"
 import { ServiceManager } from "./lib/manager.mjs"
 import { startServer } from "./lib/server.mjs"
 
@@ -55,10 +56,16 @@ function becomeLeader(state) {
   attempt()
 }
 
-export const LocalServicesPlugin = async (input, options) => {
+/** magpie 配置目录：优先用宿主传入的，其次按 magpie 的默认位置推断。 */
+function configDir(input) {
+  if (input?.directory) return input.directory
+  if (process.env.XDG_CONFIG_HOME) return path.join(process.env.XDG_CONFIG_HOME, "magpie")
+  return path.join(os.homedir(), ".config", "magpie")
+}
+
+async function server(input, options) {
   if (!shared) {
-    const directory = input?.directory
-    if (!directory) throw new Error("magpie 没有提供配置目录")
+    const directory = configDir(input)
     shared = { directory, options, port: resolvePort(options), manager: new ServiceManager(directory), leader: false, server: null }
     if (isAppHost()) becomeLeader(shared)
     process.once("exit", () => shared?.leader && shared.manager.shutdown())
@@ -70,6 +77,10 @@ export const LocalServicesPlugin = async (input, options) => {
       })
     }
   }
-  // 只提供面板，不向智能体注册工具
+  // 只提供面板，不注册供应商或工具
   return {}
 }
+
+// OpenCode v1 形式：magpie 会把模块导出的每个函数都当作插件调用，所以只默认导出 {id, server}；
+// 宿主加载插件时调用 server()，单纯 import 本模块不会占端口
+export default { id: "magpie-local-services", server }
