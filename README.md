@@ -69,7 +69,7 @@ brew install cloudflared
 | 版本命令 | 开着「自动检测」即可，会探测出 `node --version` |
 | 更新命令 | `brew upgrade node` |
 
-有新版本时行内显示「v… 可用」，可以「立即更新」「查看发布页」「忽略此版本」或「标记为当前版本」。匿名查询每小时 60 次，在设置里填「GitHub 访问令牌」可以提高额度。
+有新版本时行内显示「v… 可用」，可以「立即更新」「查看发布页」「忽略此版本」或「标记为当前版本」。默认开启「自动更新并重启」：后台检查发现新版本且已配置更新命令时自动执行，成功后重启正在运行的服务；已停止的服务不会被自动启动。手动检查仍只报告新版本，关闭开关后仍可手动更新。匿名查询每小时 60 次，在设置里填「GitHub 访问令牌」可以提高额度。
 
 <img src="https://raw.githubusercontent.com/edifierx666/magpie-local-services/main/docs/screenshots/04-update-available.png" alt="发现新版本" width="720">
 
@@ -102,6 +102,7 @@ brew install cloudflared
 | 设置 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
 | 自动检查更新 | boolean | `true` | 定时查询已绑定仓库的最新 Release |
+| 自动更新并重启 | boolean | `true` | 后台检查发现新版本且有更新命令时执行；成功后重启正在运行的服务 |
 | 检查间隔 | number（小时） | `12` | 1–168 |
 | GitHub 访问令牌 | string | — | 保存前向 GitHub 验证；只用于查询公开仓库，无需勾选任何权限 |
 

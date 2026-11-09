@@ -216,6 +216,7 @@ function closeMenu() {
 }
 
 function showMenu(anchor, items) {
+  const hasControls = items.some((it) => it?.node)
   // 再点一次同一个按钮就是收起：外部点击处理会跳过按钮本身，所以开关在这里做
   if (menuEl && menuAnchor === anchor) {
     closeMenu()
@@ -229,6 +230,8 @@ function showMenu(anchor, items) {
   }
   closeMenu()
   const menu = h("div", { class: "menu", role: "menu" })
+  // menu 的直接后代只允许菜单项角色；复选框和下拉框属于分组内容，不能套 menuitem。
+  if (hasControls) menu.setAttribute("role", "group")
   for (const it of items) {
     if (!it) continue
     if (it === "-") menu.append(h("hr"))
@@ -1468,26 +1471,43 @@ function unauthorized() {
 }
 
 function settingsMenu() {
-  const s = state?.settings ?? { autoCheck: true, intervalHours: 12 }
+  const s = state?.settings ?? { autoCheck: true, autoUpdate: true, intervalHours: 12 }
   const box = h("input", { type: "checkbox", checked: s.autoCheck })
+  const autoUpdate = h("input", { type: "checkbox", checked: s.autoUpdate, disabled: !s.autoCheck })
   const select = h(
     "select",
     { "aria-label": t("settings.interval", s.intervalHours), disabled: !s.autoCheck },
     [1, 3, 6, 12, 24, 48].map((n) => h("option", { value: String(n), selected: n === s.intervalHours, text: t("settings.interval", n) })),
   )
-  const save = async (patch) => {
+  let saveSeq = 0
+  const save = async (control, patch) => {
+    const previous = control.type === "checkbox" ? !control.checked : s.intervalHours
+    const seq = ++saveSeq
+    let settings
     try {
-      state.settings = await api("PUT", "api/settings", patch)
-      select.disabled = !state.settings.autoCheck
+      settings = await api("PUT", "api/settings", patch)
     } catch (e) {
+      if (seq === saveSeq) {
+        if (control.type === "checkbox") control.checked = previous
+        else control.value = String(previous)
+      }
       toast(e.message, true)
+      return
     }
+    if (seq !== saveSeq) return
+    state.settings = settings
+    box.checked = settings.autoCheck
+    autoUpdate.checked = settings.autoUpdate
+    select.disabled = !settings.autoCheck
+    autoUpdate.disabled = !settings.autoCheck
   }
-  box.onchange = () => save({ autoCheck: box.checked })
-  select.onchange = () => save({ intervalHours: Number(select.value) })
+  box.onchange = () => save(box, { autoCheck: box.checked })
+  autoUpdate.onchange = () => save(autoUpdate, { autoUpdate: autoUpdate.checked })
+  select.onchange = () => save(select, { intervalHours: Number(select.value) })
   return [
     { node: h("label", null, box, h("span", { text: t("settings.autoCheck") })) },
     { node: select },
+    { node: h("label", { title: t("tip.autoUpdate") }, autoUpdate, h("span", { text: t("settings.autoUpdate") })) },
     "-",
     { label: t("token.menu"), run: openTokenDialog },
   ]

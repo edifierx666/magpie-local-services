@@ -143,7 +143,7 @@ describe("更新检查设置", async () => {
   test("默认自动检查，每 12 小时", () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ls-settings-test-"))
     try {
-      expect(new Store(dir).settings).toEqual({ autoCheck: true, intervalHours: 12, intervalHoursCustom: false })
+      expect(new Store(dir).settings).toEqual({ autoCheck: true, autoUpdate: true, intervalHours: 12, intervalHoursCustom: false })
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }
