@@ -377,6 +377,22 @@ function confirmDialog({ title, message, actionLabel, danger, run }) {
 const ENV_KEY = /^[A-Za-z_][A-Za-z0-9_]*$/
 const REPO = /^(?:https?:\/\/)?(?:www\.)?(?:github\.com\/)?[A-Za-z0-9._-]+\/[A-Za-z0-9._-]+?(?:\.git)?\/?$/
 
+function homepageOf(svc) {
+  if (svc.homepage) return svc.homepage
+  if (!svc.githubRepository || !REPO.test(svc.githubRepository.trim())) return null
+  const repo = svc.githubRepository.trim().replace(/^(?:https?:\/\/)?(?:www\.)?github\.com\//, "").replace(/\.git\/?$/, "").replace(/\/$/, "")
+  return `https://github.com/${repo}`
+}
+
+function validHomepage(value) {
+  try {
+    const url = new URL(value)
+    return (url.protocol === "http:" || url.protocol === "https:") && !!url.hostname
+  } catch {
+    return false
+  }
+}
+
 function envToText(env) {
   return Object.entries(env ?? {}).map(([k, v]) => `${k}=${v}`).join("\n")
 }
@@ -404,13 +420,14 @@ function field(label, control, error) {
 
 function openEditor(svc) {
   const isNew = !svc
-  const s = svc ?? { name: "", command: "", workingDirectory: "", environment: {}, stopCommand: "", autoStart: false, startQueue: 1, githubRepository: "", currentVersion: "", versionCommand: "", updateCommand: "", autoDetectVersionCommand: true }
+  const s = svc ?? { name: "", command: "", workingDirectory: "", environment: {}, stopCommand: "", autoStart: false, startQueue: 1, homepage: "", githubRepository: "", currentVersion: "", versionCommand: "", updateCommand: "", autoDetectVersionCommand: true }
 
   const name = h("input", { type: "text", value: s.name, placeholder: t("ph.name"), autocomplete: "off", spellcheck: "false" })
   const command = h("textarea", { rows: "2", value: s.command, placeholder: t("ph.command"), spellcheck: "false" })
   const cwd = h("input", { type: "text", value: s.workingDirectory ?? "", placeholder: t("ph.cwd"), spellcheck: "false" })
   const env = h("textarea", { rows: "3", value: envToText(s.environment), placeholder: t("ph.env"), spellcheck: "false" })
   const stopCommand = h("textarea", { rows: "2", value: s.stopCommand ?? "", placeholder: t("ph.stopCommand"), spellcheck: "false" })
+  const homepage = h("input", { type: "url", value: s.homepage ?? "", placeholder: t("ph.homepage"), spellcheck: "false" })
   const autoStart = h("input", { type: "checkbox", checked: s.autoStart })
   // 启动队列只对「随 magpie 启动」生效：数字小的队列全部启动后，才启动下一个队列
   const startQueue = h("input", { type: "number", class: "queue", min: "1", max: "99", step: "1", value: String(s.startQueue ?? 1), disabled: !s.autoStart, "aria-label": t("form.startQueue") })
@@ -420,7 +437,7 @@ function openEditor(svc) {
   const versionCommand = h("input", { type: "text", value: s.versionCommand ?? "", spellcheck: "false" })
   const updateCommand = h("input", { type: "text", value: s.updateCommand ?? "", placeholder: t("ph.updateCommand"), spellcheck: "false" })
 
-  const errs = { name: h("span", { class: "error", role: "alert" }), command: h("span", { class: "error", role: "alert" }), env: h("span", { class: "error", role: "alert" }), repo: h("span", { class: "error", role: "alert" }), queue: h("span", { class: "error", role: "alert" }) }
+  const errs = { name: h("span", { class: "error", role: "alert" }), command: h("span", { class: "error", role: "alert" }), env: h("span", { class: "error", role: "alert" }), homepage: h("span", { class: "error", role: "alert" }), repo: h("span", { class: "error", role: "alert" }), queue: h("span", { class: "error", role: "alert" }) }
 
   // 版本命令留空时使用 `<可执行文件> --version`，占位符跟随命令实时显示这个默认值
   const syncVersionPlaceholder = () => {
@@ -481,6 +498,8 @@ function openEditor(svc) {
     field(t("form.cwd"), cwd),
     field(t("form.env"), env, errs.env),
     field(t("form.stopCommand"), stopCommand),
+    field(t("form.homepage"), homepage, errs.homepage),
+    h("p", { class: "hint", text: t("tip.homepage") }),
     h(
       "div",
       { class: "auto-row" },
@@ -522,7 +541,7 @@ function openEditor(svc) {
     input.classList.toggle("invalid", !!message)
     input.setAttribute("aria-invalid", message ? "true" : "false")
   }
-  for (const [input, key] of [[name, "name"], [command, "command"], [env, "env"], [repo, "repo"], [startQueue, "queue"]]) input.addEventListener("input", () => mark(input, errs[key], null))
+  for (const [input, key] of [[name, "name"], [command, "command"], [env, "env"], [homepage, "homepage"], [repo, "repo"], [startQueue, "queue"]]) input.addEventListener("input", () => mark(input, errs[key], null))
 
   const submit = async () => {
     if (saving) return
@@ -540,6 +559,7 @@ function openEditor(svc) {
     check(command, "command", command.value.trim() ? null : t("err.commandRequired"))
     const parsed = parseEnv(env.value)
     check(env, "env", parsed.error ?? null)
+    check(homepage, "homepage", !homepage.value.trim() || validHomepage(homepage.value.trim()) ? null : t("err.homepage"))
     check(repo, "repo", !repo.value.trim() || REPO.test(repo.value.trim()) ? null : t("err.repo"))
     const queue = Number(startQueue.value)
     check(startQueue, "queue", Number.isInteger(queue) && queue >= 1 && queue <= 99 ? null : t("err.startQueue"))
@@ -556,6 +576,7 @@ function openEditor(svc) {
       stopCommand: stopCommand.value.trim() || null,
       autoStart: autoStart.checked,
       startQueue: Number(startQueue.value) || 1,
+      homepage: homepage.value.trim() || null,
       githubRepository: repo.value.trim() || null,
       currentVersion: current.value.trim() || null,
       versionCommand: versionCommand.value.trim() || null,
@@ -630,6 +651,7 @@ function createCard(id) {
   c.handle = h("button", { type: "button", class: "icon handle", title: t("reorder"), "aria-label": t("reorder") }, icon("grip"))
   c.restart = h("button", { type: "button", class: "icon ghost", title: t("restart"), "aria-label": t("restart") }, icon("restart"))
   c.copy = h("button", { type: "button", class: "icon ghost", title: t("copyAddress"), "aria-label": t("copyAddress") }, icon("copy"))
+  c.homepage = h("button", { type: "button", class: "icon ghost", title: t("openHomepage"), "aria-label": t("openHomepage") }, icon("external"))
   c.logsBtn = h("button", { type: "button", class: "icon ghost", title: t("logs"), "aria-label": t("logs"), "aria-expanded": "false" }, icon("logs"))
   c.more = h("button", { type: "button", class: "icon ghost", title: t("more"), "aria-label": t("more"), "aria-haspopup": "menu" }, icon("more"))
   c.pre = h("pre", { tabindex: "0" })
@@ -647,7 +669,7 @@ function createCard(id) {
       c.dot,
       h("div", { class: "info" }, h("div", { class: "title-line" }, c.name, c.auto, c.update, c.tunnel), c.cmd, c.meta),
       // 主操作（启动/停止）固定在最右侧，其余按钮按需出现时只向左增减，主按钮始终对齐
-      h("div", { class: "actions" }, c.copy, c.restart, c.logsBtn, c.more, c.toggle),
+      h("div", { class: "actions" }, c.copy, c.homepage, c.restart, c.logsBtn, c.more, c.toggle),
     ),
     c.logs,
   )
@@ -660,6 +682,10 @@ function createCard(id) {
     act(id, "toggle", () => post(id, isActive(svc) ? "stop" : "start"))
   }
   c.restart.onclick = () => act(id, "restart", () => post(id, "restart"))
+  c.homepage.onclick = () => {
+    const url = homepageOf(svcOf() ?? {})
+    if (url) openURL(url)
+  }
   c.logsBtn.onclick = () => toggleLogs(c)
   // 一个地址直接复制；多个地址下拉选择
   c.copy.onclick = () => {
@@ -762,6 +788,8 @@ function updateCard(c, svc) {
   c.auto.textContent = svc.startQueue > 1 ? t("autoStartQueue", svc.startQueue) : t("autoStart")
   c.copy.hidden = !(isActive(svc) && r.addresses?.length)
   c.copy.setAttribute("aria-haspopup", r.addresses?.length > 1 ? "menu" : "false")
+  c.homepage.hidden = !homepageOf(svc)
+  c.homepage.title = homepageOf(svc) ?? ""
   c.cmd.textContent = svc.command
   c.cmd.title = svc.command
 

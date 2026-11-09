@@ -53,11 +53,12 @@ brew install cloudflared
 | 命令 | `node server.js --port 3000` |
 | 工作目录 | `~/projects/my-node-app` |
 | 环境变量 | `NODE_ENV=production`、`PORT=3000` |
+| 首页地址 | `http://127.0.0.1:3000`（可留空） |
 | 随 magpie 启动 / 启动队列 | 打开 / `2` |
 
 <img src="https://raw.githubusercontent.com/edifierx666/magpie-local-services/main/docs/screenshots/02-service-editor.png" alt="新建服务" width="560">
 
-保存后点「启动」：状态变为「运行中」，行内出现端口 `3000` 与 PID 标签，「日志」里能看到实时输出。
+保存后点「启动」：状态变为「运行中」，行内出现端口 `3000` 与 PID 标签，「日志」里能看到实时输出。列表的外链图标用于打开首页：优先使用填写的首页地址，留空时使用 GitHub 仓库地址；两者都未填写时不显示该按钮。
 
 <img src="https://raw.githubusercontent.com/edifierx666/magpie-local-services/main/docs/screenshots/03-logs.png" alt="日志" width="720">
 
@@ -120,6 +121,7 @@ brew install cloudflared
 | 终止命令 | string | — | 停止时先执行（最多等 30 秒），可用 `$LOCAL_SERVICE_PID`、`$LOCAL_SERVICE_PIDS`、`$LOCAL_SERVICE_PORTS` |
 | 随 magpie 启动 | boolean | 关 | 每个 magpie 会话只自动启动一次 |
 | 启动队列 | number | `1` | 1–99，自动启动时从小到大分批 |
+| 首页地址 | string（HTTP(S) URL） | — | 列表首页按钮的打开地址；留空时使用 GitHub 仓库 |
 | GitHub 仓库 | `owner/repo` | — | 绑定后才检查新版本 |
 | 当前版本 | string | 自动检测 | 由版本命令得出，也可手填 |
 | 版本命令 | string | 自动检测 | 手动修改即关闭自动检测 |
