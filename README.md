@@ -4,48 +4,68 @@
 
 # 本地服务 · Local Services
 
-**常驻本地命令，在 magpie 里一处托管**
+**告别满屏终端窗口 —— 在 magpie 里统一托管本地常驻服务，并一键分享到公网供他人使用**
 
-![version](https://img.shields.io/badge/version-0.1.0-blue?style=flat-square)
+![version](https://img.shields.io/badge/version-0.2.0-blue?style=flat-square)
 ![license](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 ![platform](https://img.shields.io/badge/platform-macOS-lightgrey?style=flat-square)
 ![runtime](https://img.shields.io/badge/runtime-Bun-black?style=flat-square)
 ![magpie](https://img.shields.io/badge/magpie-page%20plugin-orange?style=flat-square)
 
-[特性](#特性) · [快速开始](#快速开始) · [使用示例](#使用示例) · [配置项](#配置项)
+[解决什么痛点](#解决什么痛点) · [核心亮点](#核心亮点) · [快速开始](#快速开始) · [场景演示](#场景演示) · [配置与原理](#配置项)
 
 </div>
 
 <p align="center"><img src="https://raw.githubusercontent.com/edifierx666/magpie-local-services/main/docs/screenshots/01-services-list.png" alt="服务列表" width="820"></p>
 
-本地代理、网关、开发服务器这类要一直开着的命令，不用再各开一个终端窗口守着。这个 magpie 插件在侧边栏加一个「本地服务」页面：统一启停、看实时日志、发现新版本并一键更新，还能把端口临时分享到公网。
+## 解决什么痛点
 
-## 特性
+日常开发和使用 AI 工具时，本机往往要常驻一堆后台命令：本地 API 网关、MCP 服务、反向代理、开发服务器、Webhook 接收端……
 
-- **🛡️ 进程管得住** — 每个服务带 `LOCAL_SERVICE_ID` 环境标记并单独成进程组，连同派生的子孙进程一起追踪；停止时先执行你写的终止命令，再 SIGTERM → SIGKILL 收尾。
-- **🔁 magpie 重启不掉线** — 服务独立于 magpie 运行，magpie 重启或插件更新后自动重新接管，日志不断档。
-- **🚦 按队列有序启动** — 「随 magpie 启动」的服务按启动队列（1–99）分批拉起，前一批全部就绪并稳定 1.5 秒才启动下一批。
-- **🔔 新版本自己找上门** — 绑定 GitHub 仓库后每 12 小时查一次最新 Release；版本命令自动探测，有新版时一键执行更新命令，也可以忽略这个版本。
-- **🌐 一键分享到公网** — 基于 Cloudflare 免费快速隧道，任意本机端口几秒内得到 `https://*.trycloudflare.com` 地址，无需 Cloudflare 账号。
-- **📋 地址点一下就有** — 自动识别监听端口，点端口标签复制 `http://127.0.0.1:端口`；列表可拖动排序，删除可撤销。
+| 过去的折腾 | 用「本地服务」之后 |
+| --- | --- |
+| **终端开满屏**：5、6 个不能关的终端窗口占着桌面，手滑关错一个服务就挂 | **零终端统一面板**：全部收进 magpie 侧边栏，一处看清运行状态、端口与实时日志 |
+| **启停靠手敲**：每次开机挨个 `cd`、设环境变量、按顺序敲启动命令；停服务还容易残留子进程 | **队列自启 + 干净回收**：随 magpie 按依赖顺序分批拉起；停止时连同子孙进程一并清理 |
+| **联调分享难**：想把本地跑起来的服务给同事体验、给手机预览或接外部 Webhook，还得折腾内网穿透和账号配置 | **一键公网分享**：免注册、免配置，几秒生成 `https://*.trycloudflare.com` 公网链接，发给别人点开就能用 |
+| **版本靠人盯**：开源工具发了新版不知道，想升级还得切回终端重装重启 | **自动追新升级**：绑定 GitHub 仓库后自动检查 Release，支持一键升级或后台自动更新并重启 |
+
+---
+
+## 核心亮点
+
+- **🖥️ 在 magpie 里一站式掌控** — 状态一目了然，自动识别服务监听端口（点端口标签直接复制 `http://127.0.0.1:端口`），一键直达服务首页，实时查看合并日志，列表支持拖拽排序与撤销删除。
+- **🌐 一键把本地服务分享给任何人** — 内置 Cloudflare 免费快速隧道，无需 Cloudflare 账号或域名配置。无论是已托管的服务还是本机任意端口，点一下就能拿到公网 HTTPS 地址，跨设备测试、团队演示、远程联调即开即用。
+- **🛡️ magpie 重启也不掉线** — 服务以独立进程组在后台运行，与 magpie 生命周期解耦；即使重启 magpie 或更新插件，也会自动重新接管运行中的服务，日志不断档。停止时先跑自定义终止命令，再按进程组 `SIGTERM → SIGKILL` 兜底，绝不留孤儿进程。
+- **🚦 按启动队列有序拉起** — 开启「随 magpie 启动」后，按队列编号（`1–99`）从小到大分批启动，前一批全部就绪并稳定运行 1.5 秒后才拉起下一批，从容应对「先起数据库/代理，再起网关/应用」的依赖顺序。
+- **🔔 新版本自动找上门** — 绑定 GitHub 仓库后定时检查最新 Release，自动探测本地版本号。支持后台自动执行更新命令并平滑重启正在运行的服务，也可以手动一键更新或忽略特定版本。
+
+---
 
 ## 快速开始
 
-前置：macOS + [magpie](https://usemagpie.ai)（插件由 magpie 自带的 Bun 运行，无需安装依赖）；使用隧道另需 `cloudflared`。
+**环境要求**：macOS + [magpie](https://usemagpie.ai) `>= 0.1.1340`（插件由 magpie 内置的 Bun 直接运行，无需额外安装 Node/Bun 依赖）。
+
+**1. 安装插件**
 
 ```bash
 magpie plugin add github:edifierx666/magpie-local-services
 ```
 
+**2. 安装公网分享工具（可选，使用「分享到公网」功能时需安装）**
+
 ```bash
 brew install cloudflared
 ```
 
-启用插件后，magpie 侧边栏的「插件」分组里出现「本地服务」，点开即可使用。
+启用插件后，点击 magpie 左侧边栏「插件」分组下的 **本地服务** 即可开始托管。
 
-## 使用示例
+---
 
-**托管一个 Node 服务**：点「新建」，填写：
+## 场景演示
+
+### 1. 托管常驻服务与查看实时日志
+
+点击「新建」，把原本要在终端里敲的启动命令填进来即可：
 
 | 字段 | 示例 |
 | --- | --- |
@@ -58,34 +78,42 @@ brew install cloudflared
 
 <img src="https://raw.githubusercontent.com/edifierx666/magpie-local-services/main/docs/screenshots/02-service-editor.png" alt="新建服务" width="560">
 
-保存后点「启动」：状态变为「运行中」，行内出现端口 `3000` 与 PID 标签，「日志」里能看到实时输出。列表的外链图标用于打开首页：优先使用填写的首页地址，留空时使用 GitHub 仓库地址；两者都未填写时不显示该按钮。
+保存并点击「启动」后，行内会自动浮现监听端口 `3000` 与 PID 标签，点击端口即可复制本地地址；右侧外链图标可一键打开服务首页（留空时回退到 GitHub 仓库地址）。切换到「日志」随时查看实时输出，再也不用翻找终端窗口：
 
 <img src="https://raw.githubusercontent.com/edifierx666/magpie-local-services/main/docs/screenshots/03-logs.png" alt="日志" width="720">
 
-**跟踪版本并一键更新**：在同一个服务的「更新」部分补上：
+### 2. 一键分享到公网供他人访问
+
+本地服务跑起来后，想让同事直接访问你的接口或页面？在服务的 `⋯` 菜单选择 **「分享到公网…」**，或者切换到 **「隧道」** 标签页填入任意本机端口，点击「开始分享」：
+
+| 分享到公网 | 隧道集中管理 |
+| --- | --- |
+| <img src="https://raw.githubusercontent.com/edifierx666/magpie-local-services/main/docs/screenshots/07-tunnel-share.png" alt="分享到公网" width="380"> | <img src="https://raw.githubusercontent.com/edifierx666/magpie-local-services/main/docs/screenshots/08-tunnels-list.png" alt="隧道列表" width="420"> |
+
+几秒内即可拿到 `https://*.trycloudflare.com` 公网地址，一键复制发给对方即可直接访问；用完随时关闭隧道，干净省心。
+
+### 3. 跟踪 GitHub 版本并自动更新
+
+托管本地开源组件（如 CLI 网关、代理工具等）时，在服务的「更新」区域绑定仓库与升级命令：
 
 | 字段 | 示例 |
 | --- | --- |
 | GitHub 仓库 | `nodejs/node` |
-| 版本命令 | 开着「自动检测」即可，会探测出 `node --version` |
+| 版本命令 | 保持「自动检测」即可，会自动探测如 `node --version` |
 | 更新命令 | `brew upgrade node` |
 
-有新版本时行内显示「v… 可用」，可以「立即更新」「查看发布页」「忽略此版本」或「标记为当前版本」。默认开启「自动更新并重启」：后台检查发现新版本且已配置更新命令时自动执行，成功后重启正在运行的服务；已停止的服务不会被自动启动。手动检查仍只报告新版本，关闭开关后仍可手动更新。匿名查询每小时 60 次，在设置里填「GitHub 访问令牌」可以提高额度。
+当上游发布新版本时，列表会直接提示「`v… 可用`」，你可以选择「立即更新」「查看发布页」「忽略此版本」或「标记为当前版本」。默认开启「自动更新并重启」：后台巡检发现新版本且配置了更新命令时会自动升级，并在成功后重启原本运行中的服务（已停止的服务不会被意外拉起）。匿名查询额度为 60 次/小时，可在设置中填入无需任何权限的 GitHub Token 提升额度。
 
 <img src="https://raw.githubusercontent.com/edifierx666/magpie-local-services/main/docs/screenshots/04-update-available.png" alt="发现新版本" width="720">
 
-**分享到公网**：在服务的 ⋯ 菜单选「分享到公网…」，或切到「隧道」标签页填任意端口，点「开始分享」。地址出来后可以复制、在浏览器中打开或关闭隧道。
-
-| 分享到公网 | 隧道列表 |
-| --- | --- |
-| <img src="https://raw.githubusercontent.com/edifierx666/magpie-local-services/main/docs/screenshots/07-tunnel-share.png" alt="分享到公网" width="380"> | <img src="https://raw.githubusercontent.com/edifierx666/magpie-local-services/main/docs/screenshots/08-tunnels-list.png" alt="隧道列表" width="420"> |
+---
 
 ## 配置项
 
 <details>
 <summary><b>插件选项与环境变量</b></summary>
 
-插件选项用 `magpie plugin options magpie-local-services '<json>'` 设置。
+插件选项可通过 `magpie plugin options magpie-local-services '<json>'` 设置。
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
@@ -110,7 +138,7 @@ brew install cloudflared
 </details>
 
 <details>
-<summary><b>服务字段</b></summary>
+<summary><b>服务字段说明</b></summary>
 
 | 字段 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
@@ -130,18 +158,18 @@ brew install cloudflared
 </details>
 
 <details>
-<summary><b>数据、令牌与安全</b></summary>
+<summary><b>数据存储、令牌与安全边界</b></summary>
 
 - **数据目录**：`<magpie 配置目录>/local-services/`，含 `services.json`、`runtime.json`、`logs/`、`tunnels/`。
-- **面板令牌**：首次打开时生成，保存在 magpie `plugins.json` 中本插件的选项里；每个 API 请求都要带 `x-local-services-token`。
-- **GitHub 令牌**：单独存成权限 `0600` 的文件，不写进 `services.json`，也不进日志；面板只显示末 4 位。
-- **网络边界**：面板只监听 `127.0.0.1` 并校验 `Host` 头，其他网页无法跨站操作服务；「打开链接」只放行 GitHub 与本插件建立的隧道地址。
-- **隧道即公网入口**：拿到地址的人都能访问对应端口，不用时请关闭。
+- **面板令牌**：首次打开时生成，保存在 magpie `plugins.json` 中本插件的选项里；每个 API 请求均需携带 `x-local-services-token`。
+- **GitHub 令牌**：单独存为权限 `0600` 的文件，不写入 `services.json`，也不进日志；面板仅展示末 4 位。
+- **网络边界**：管理面板仅监听 `127.0.0.1` 并校验 `Host` 头，防止其他网页跨站操作本地服务；「打开链接」仅放行 GitHub 与本插件创建的隧道地址。
+- **公网提醒**：隧道开启后即成为公网入口，持有链接的人均可访问对应本地端口，联调或演示结束后请及时关闭。
 
 </details>
 
 <details>
-<summary><b>运行方式</b></summary>
+<summary><b>运行架构与守护原理</b></summary>
 
 ```
 magpie 窗口
@@ -155,20 +183,24 @@ magpie 窗口
                           └─ lib/store.mjs    services.json、日志、设置
 ```
 
-- **服务**以独立进程组运行，输出直接写日志文件，不随 magpie 退出而停止；新的插件宿主按 `runtime.json` 与进程标记重新接管。
-- **隧道**随插件宿主退出而关闭；宿主被强杀时，下次启动按 `tunnels/tunnels.json` 核对命令行后清理遗留进程，不会误杀别的 `cloudflared`。
-- 只有 magpie 应用自己的插件宿主（`magpie` / `tray` / `serve` / `web` / `daemon` / `tui`）负责监控和自动启动；终端里 `magpie plugin …` 等短命宿主不会接管。
-- 日志合并 stdout / stderr，插件自己的操作记录以 `▸` 开头。
+- **服务解耦守护**：服务以独立进程组运行并注入 `LOCAL_SERVICE_ID` 环境标记，输出直接写日志文件，不随 magpie 退出而中断；新的插件宿主启动后按 `runtime.json` 与进程标记自动重新接管。
+- **隧道生命周期**：隧道随插件宿主退出而关闭；若宿主被强杀，下次启动会按 `tunnels/tunnels.json` 核对命令行后精确清理遗留进程，不会误杀用户自己运行的 `cloudflared`。
+- **单宿主接管**：仅 magpie 主应用宿主（`magpie` / `tray` / `serve` / `web` / `daemon` / `tui`）负责监控与自动启动；终端执行 `magpie plugin …` 等短命命令不会抢占接管权。
+- **日志格式**：合并 stdout / stderr，插件自身操作记录以 `▸` 开头。
 
 </details>
 
-## 开发
+---
+
+## 本地开发与调试
+
+运行测试：
 
 ```bash
 bun test
 ```
 
-在沙箱里试跑，避免影响正在用的 magpie。先在沙箱配置目录放一个 `plugins.json`，否则 magpie 可能改用应用旁边的便携数据目录：
+在隔离沙箱中试跑（不影响日常正在使用的 magpie 实例；先在沙箱配置目录初始化 `plugins.json`，避免触发便携目录回退）：
 
 ```bash
 sb=$(mktemp -d); mkdir -p $sb/.config/magpie; echo '{"plugins":[]}' > $sb/.config/magpie/plugins.json
@@ -176,8 +208,8 @@ m() { env HOME=$sb XDG_CONFIG_HOME=$sb/.config XDG_CACHE_HOME=$sb/.cache MAGPIE_
 m plugin add ./ </dev/null && m web --addr 127.0.0.1:3531
 ```
 
-欢迎提 Issue 与 PR · MIT License
+欢迎提交 Issue 与 PR · MIT License
 
 ---
 
-<sub>English: a magpie page plugin that runs, supervises and updates long-running local commands (start queue, live logs, GitHub release checks) and shares any local port through a free Cloudflare quick tunnel. macOS only.</sub>
+<sub>English: Stop juggling terminal windows — manage, supervise, and auto-update all your long-running local services right inside magpie, and share any local port to the public internet in one click via free Cloudflare quick tunnels. macOS only.</sub>
