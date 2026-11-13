@@ -609,6 +609,7 @@ function openEditor(svc) {
 // ---- 服务卡片 ---------------------------------------------------------------------
 
 let state = null
+let stateRev = null
 const cards = new Map()
 const busy = new Set()
 
@@ -1469,8 +1470,15 @@ let stopped = false
 async function refresh() {
   if (stopped) return
   try {
-    state = await api("GET", "api/state")
+    const q = stateRev ? `?rev=${encodeURIComponent(stateRev)}` : ""
+    const data = await api("GET", `api/state${q}`)
     notice(null)
+    if (data?.unchanged) {
+      if (state?.rateLimitedUntil) render()
+      return
+    }
+    stateRev = data.rev ?? null
+    state = data
     render()
   } catch (e) {
     if (e.status === 401) return unauthorized()

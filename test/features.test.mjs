@@ -266,3 +266,69 @@ describe("隧道地址识别与错误说明", async () => {
     expect(explainError("429 Too Many Requests")).toContain("稍后再试")
   })
 })
+
+describe("真实进程扫描与增量状态接口", async () => {
+  const { spawn } = await import("node:child_process")
+  const { scanProcesses, verifyProcesses, clearEnvCache, SERVICE_ID_KEY } = await import("../lib/process.mjs")
+  const { startServer } = await import("../lib/server.mjs")
+  const { ServiceManager } = await import("../lib/manager.mjs")
+  const fs = await import("node:fs")
+  const os = await import("node:os")
+  const path = await import("node:path")
+
+  test("scanProcesses 识别带标记的真实子进程，verifyProcesses 可轻量核验", async () => {
+    clearEnvCache()
+    const svcId = "test-svc-" + Date.now()
+    const child = spawn(process.execPath, ["-e", "setTimeout(() => {}, 30000)"], {
+      detached: true,
+      stdio: "ignore",
+      env: { ...process.env, [SERVICE_ID_KEY]: svcId },
+    })
+    try {
+      await new Promise((r) => child.once("spawn", r))
+      const found1 = await scanProcesses([{ id: svcId, pgid: null, leaderCommand: null, trustGroup: false }], { includePorts: false, scanEnv: true })
+      expect(found1).not.toBeNull()
+      expect(found1.get(svcId).some((p) => p.pid === child.pid)).toBe(true)
+
+      // 第二次 scanEnv: false 应命中 envCache 或 pgid，继续保持可识别
+      const found2 = await scanProcesses([{ id: svcId, pgid: null, leaderCommand: null, trustGroup: false }], { includePorts: false, scanEnv: false })
+      expect(found2.get(svcId).some((p) => p.pid === child.pid)).toBe(true)
+
+      const verified = await verifyProcesses([child.pid])
+      expect(verified).not.toBeNull()
+      expect(verified.get(child.pid)?.pid).toBe(child.pid)
+    } finally {
+      try {
+        process.kill(-child.pid, "SIGKILL")
+      } catch {}
+    }
+  })
+
+  test("GET /api/state 支持 ?rev= 跳过未变更状态，并在状态变化后返回最新全量", async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ls-rev-test-"))
+    const token = "t".repeat(32)
+    const m = new ServiceManager(dir)
+    m.markReady()
+    const srv = startServer({ manager: m, port: 0, directory: dir, options: { token } })
+    try {
+      const base = `http://127.0.0.1:${srv.port}`
+      const headers = { "x-local-services-token": token }
+      const r1 = await fetch(`${base}/api/state`, { headers }).then((r) => r.json())
+      expect(typeof r1.rev).toBe("string")
+      expect(r1.services).toEqual([])
+
+      const r2 = await fetch(`${base}/api/state?rev=${encodeURIComponent(r1.rev)}`, { headers }).then((r) => r.json())
+      expect(r2).toEqual({ unchanged: true, rev: r1.rev })
+
+      m.create({ name: "demo", command: "sleep 1" })
+      const r3 = await fetch(`${base}/api/state?rev=${encodeURIComponent(r1.rev)}`, { headers }).then((r) => r.json())
+      expect(r3.unchanged).toBeUndefined()
+      expect(r3.services).toHaveLength(1)
+      expect(r3.rev).not.toBe(r1.rev)
+    } finally {
+      srv.stop(true)
+      m.shutdown()
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})

@@ -1,6 +1,6 @@
 {
   "name": "magpie-local-services",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Local services for magpie: run, supervise and update long-running local commands, and share local ports via Cloudflare quick tunnels",
   "homepage": "https://github.com/edifierx666/magpie-local-services#readme",
   "repository": {
